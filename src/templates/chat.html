@@ -31,7 +31,11 @@
         $("#sendBtn").click(sendmessage)
         window.setTimeout(updateChat, 1500);
       });
-  
+      function clear(){
+        $.get(room(), function(data) {
+          $("#chatbox").text("");
+        })
+      }
     </script>
     <body>
       <h1>Chat Room: {{ room }}</h1>
@@ -48,6 +52,7 @@
       <br>
       <br>
       <a href="/logout">logout</a>
+      <button onclick="">Clear</button>
 
     </body>
   </html>
