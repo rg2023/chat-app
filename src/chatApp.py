@@ -32,6 +32,10 @@ def chat(room_id):
     return render_template('chat.html', room=room_id)
 
 
+@app.route('/api/chat/clear/<room>', methods=['POST'])
+def clear(room):
+    return chat_manager.clear_messages(room)
+
     
 
 @app.route('/api/chat/<room_id>', methods=['GET', 'POST'])

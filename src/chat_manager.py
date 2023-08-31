@@ -14,3 +14,13 @@ def get_all_messages(room_id):
     with open(f'rooms/{room_id}.txt', 'r') as room_file:
         messages = room_file.read()
     return messages
+def clear_messages(room):
+  """Clears all messages in the current room."""
+  if request.method == "POST":
+    name_to_remove= session['username']
+    with open(f'rooms/{room}.txt', 'r') as f:
+        lines=f.readlines()  
+    with open(f'rooms/{room}.txt', 'w') as file:
+            for line in lines:
+                 if name_to_remove not in line:
+                    file.write(line)    
