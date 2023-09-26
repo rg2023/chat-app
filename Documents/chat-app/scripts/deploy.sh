@@ -1,36 +1,33 @@
-
 #!/bin/bash
 
-# Get the version and commit hash from the user
-version=$(read -p "Enter the version: ")
-commit_hash=$(read -p "Enter the commit hash: ")
+version=$1
+commit_hash=$2
 
-# Check if the image exists
-image_name="chat-app:${version}"
-
-if docker images -q $image_name; then
-  # Ask the user if they want to rebuild the image
-  read -p "Do you want to rebuild the image? (y/n): " rebuild_image
-
-  if [[ $rebuild_image == "y" ]]; then
-
-    # Delete the existing image
-    docker rmi $image_name
-
-    # Build the image
-  fi
+if [[ -z $version && -z $commit_hash ]]; then
+    echo "missing parameters"
+    exit 1
 fi
-  # Build the image
-  docker build -t $image_name:$version .
+
+image_name="chat-app:$version"
+
+# Check if the Docker image exists
+if [[ "$(docker images -q $image_name)" ]]; then
+    echo "The Docker image $image_name already exists."
+    read -p "Do you want to rebuild the image? (y/n): " rebuild_choice
+
+    if [[ $rebuild_choice == [Yy] ]]; then
+        # Delete the existing Docker image
+        docker rmi $image_name
+        docker build -t chatapp:$version .
+    fi
+else
+    docker build -t chatapp:$version .
+fi
 
 
-git tag -a "$version" -m "$commit"
-git push origin "$version"
-# Tag the image
-docker tag $version rg2023/chat-app:$version
+git tag $version $commit_hash
 
-# Push the image to your GitHub repository
-docker push rg2023/chat-app:$image_name:${version}  
+git push origin $version
 
 
 
