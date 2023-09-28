@@ -1,33 +1,45 @@
 #!/bin/bash
-
 version=$1
 commit_hash=$2
+tag_and_push=$3
 
-if [[ -z $version && -z $commit_hash ]]; then
-    echo "missing parameters"
+if [[ -z $version && -z $commit_hash && -z $tag_and_push ]]; then
+    echo "Missing parameters"
     exit 1
 fi
 
-image_name="chat-app:$version"
+image_name=chat-app:${version}
 
 # Check if the Docker image exists
 if [[ "$(docker images -q $image_name)" ]]; then
-    echo "The Docker image $image_name already exists."
-    read -p "Do you want to rebuild the image? (y/n): " rebuild_choice
+    read -p "Image $image_name already exists. Do you want to rebuild it (y/n)? " rebuild
+    # If the user chooses to rebuild the image, delete the existing one.
+            if [[ "$rebuild" == "y" ]]; then
+            # Delete the existing image
+            docker rmi "chat-app:$version"
+            else
+            echo "Using existing image chat-app:$version."
+            fi
 
-    if [[ $rebuild_choice == [Yy] ]]; then
-        # Delete the existing Docker image
-        docker rmi $image_name
-        docker build -t chatapp:$version .
-    fi
+
 else
-    docker build -t chatapp:$version .
+    # Build the Docker image
+    docker build -t "chat-app:$version" .
+fi
+if [[ $tag_and_push == "true" ]]; then
+        git tag  $version $commit_hash
+        git push origin $version
 fi
 
 
-git tag $version $commit_hash
 
-git push origin $version
-
-
-
+   read -p "Do you want to push the image to Artifact Registry? (y/n): " push_to_registry
+    if [[ "$push_to_registry" == "y" ]]; then
+      gcloud auth login
+      gcloud config set auth/impersonate_service_account artifact-admin-sa@grunitech-mid-project.iam.gserviceaccount.com  
+      gcloud auth configure-docker me-west1-docker.pkj.dev
+      docker tag chat-app:${version} me-west1-docker.pkg.dev/grunitech-mid-project/rachel-gershon-chat-app-images/chat-app:${version}
+      docker push me-west1-docker.pkg.dev/grunitech-mid-project/rachel-gershon-chat-app-images/chat-app:${version}
+    else
+        echo "Image not pushed to Artifact Registry."
+    fi
