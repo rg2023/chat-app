@@ -23,10 +23,10 @@ else
     # Build the Docker image
     docker build -t "chat-app:$version" .
 fi
-read -p "Do you want to push  tag to git: " tag_and_push
+read -p "Do you want to push tag to git: " tag_and_push
 
 if [[ $tag_and_push == "true" ]]; then
-        git tag  $version $commit_hash
+        git tag $version $commit_hash
         git push origin $version
 fi
 
