@@ -63,3 +63,15 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
+#clearBtn {
+    display: block;
+    text-align: center;
+    margin: 20px auto; 
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
